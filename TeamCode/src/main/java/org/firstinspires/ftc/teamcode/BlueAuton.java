@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -55,26 +56,36 @@ public class BlueAuton extends LinearOpMode {
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
 
+    private Servo leftBase;
+    private Servo rightBase;
+
     private DcMotor frontLeft;
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
-
 
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        frontLeft  = hardwareMap.get(DcMotor.class, "frontLeft");
+//        leftBase = hardwareMap.get(Servo.class, "leftBase");
+//        rightBase = hardwareMap.get(Servo.class, "rightBase");
+
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
-        backLeft  = hardwareMap.get(DcMotor.class, "backLeft");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
         backRight = hardwareMap.get(DcMotor.class, "backRight");
 
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+
+        // TODO: 11/16/19 figure out range
+//        leftBase.scaleRange();
+
+        rightBase.setDirection(Servo.Direction.REVERSE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -85,6 +96,10 @@ public class BlueAuton extends LinearOpMode {
         sideways(10, 0.3);
     }
 
+    private void baseServos(double pos) {
+        leftBase.setPosition(pos);
+        rightBase.setPosition(pos);
+    }
 
     private boolean atTarget() {
         return !frontLeft.isBusy() && !frontRight.isBusy();
