@@ -28,11 +28,17 @@
  */
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
+import android.support.annotation.Nullable;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.vuforia.TrackableResult;
+import com.vuforia.VuMarkTarget;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.Camera;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -66,7 +72,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
  */
 
 @TeleOp(name="Concept: VuMark Id", group ="Concept")
-@Disabled
+//@Disabled
 public class ConceptVuMarkIdentification extends LinearOpMode {
 
     public static final String TAG = "Vuforia VuMark Sample";
@@ -124,7 +130,7 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
          * @see VuMarkInstanceId
          */
         VuforiaTrackables trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
-        VuforiaTrackable template = trackables.get(0);
+        final VuforiaTrackable template = trackables.get(0);
         template.setName("skystoneTemplate"); // can help in debugging; otherwise not necessary
 
         telemetry.addData(">", "Press Play to start");
@@ -133,26 +139,22 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
 
         trackables.activate();
 
+        VuforiaTrackableDefaultListener listener = (VuforiaTrackableDefaultListener) template.getListener();
+
         while (opModeIsActive()) {
 
-            /**
-             * See if any of the instances of {@link template} are currently visible.
-             * {@link RelicRecoveryVuMark} is an enum which can have the following values:
-             * UNKNOWN, LEFT, CENTER, and RIGHT. When a VuMark is visible, something other than
-             * UNKNOWN will be returned by {@link RelicRecoveryVuMark#from(VuforiaTrackable)}.
-             */
-            RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(template);
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+
+            if (listener.isVisible()) {
 
                 /* Found an instance of the template. In the actual game, you will probably
                  * loop until this condition occurs, then move on to act accordingly depending
                  * on which VuMark was visible. */
-                telemetry.addData("VuMark", "%s visible", vuMark);
+                telemetry.addData("VuMark", "visible");
 
                 /* For fun, we also exhibit the navigational pose. In the Relic Recovery game,
                  * it is perhaps unlikely that you will actually need to act on this pose information, but
                  * we illustrate it nevertheless, for completeness. */
-                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener)template.getListener()).getPose();
+                OpenGLMatrix pose = listener.getPose();
                 telemetry.addData("Pose", format(pose));
 
                 /* We further illustrate how to decompose the pose into useful rotational and
@@ -168,12 +170,16 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
 
                     // Extract the rotational components of the target relative to the robot
                     double rX = rot.firstAngle;
-                    double rY = rot.secondAngle;
+                    double rY = rot.secondAngle; // this one is the relevant one
                     double rZ = rot.thirdAngle;
+
+                    telemetry.addData("rX", rX);
+                    telemetry.addData("rY", rY);
+                    telemetry.addData("rZ", rZ);
                 }
             }
             else {
-                telemetry.addData("VuMark", "not visible");
+                telemetry.addData("VuMark", "not found");
             }
 
             telemetry.update();

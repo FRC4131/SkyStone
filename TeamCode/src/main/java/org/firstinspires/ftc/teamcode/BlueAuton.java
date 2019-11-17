@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -36,6 +37,23 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuMarkInstanceId;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import java.util.List;
 
 
 /**
@@ -51,6 +69,7 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
+@Autonomous(name = "blue")
 public class BlueAuton extends LinearOpMode {
 
     // Declare OpMode members.
@@ -64,10 +83,17 @@ public class BlueAuton extends LinearOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
 
+    /*
+     * If you want to see the explanations, go to the Vuforia Demo
+     */
+    private static final String VUFORIA_KEY =
+            "AeTSKkn/////AAABmXK540vJ4k8muhR6D7aoeZpbnFSenqf9a+poNXj4KY56UyTsbTrSeHqrNBi7hJweC+rEjfGiSPfJ813Az57QwdTyLzth/JgNKh3BfGz7OcgIaqCMLwDZf+BAEjFYuX2j5bKUNN/+kCrWp8AUvbPpcPHmGnnwJ7ABzmsazba+tMgSs3rcA3AvezaOGOMDwIiG71ouwN3mKOvybsDNf+2jzMCn1tywUqn3teDCGzKjV2ZeqJW9Qt2wjrvY2sI3MS176buUh/H04Da5FDj+6Dg3/fZtsIlsrVu2fAvepwWvgiCprGf6i9Q4oLBryNgCLDfpMx9EXBWAE4D5hzyBsoFITU0z6zUO+e8b6rJ0xQQr7dbV";
+
+    OpenGLMatrix lastLocation = null;
+    VuforiaLocalizer vuforia;
+
     @Override
     public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
 //        leftBase = hardwareMap.get(Servo.class, "leftBase");
 //        rightBase = hardwareMap.get(Servo.class, "rightBase");
@@ -82,18 +108,67 @@ public class BlueAuton extends LinearOpMode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        VuforiaTrackables trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+        final VuforiaTrackable template = trackables.get(0);
+
         // TODO: 11/16/19 figure out range
 //        leftBase.scaleRange();
 
-        rightBase.setDirection(Servo.Direction.REVERSE);
+//        rightBase.setDirection(Servo.Direction.REVERSE);
+
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+
+        trackables.activate();
+        VuforiaTrackableDefaultListener mark = (VuforiaTrackableDefaultListener) template.getListener();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
-        forward(20, 0.3);
+        cartesianDrive(0, 0.4, 0);
+
+        boolean done = false;
+        while (!done && opModeIsActive()) {
+            if (mark.isVisible()) {
+                OpenGLMatrix pose = mark.getPose();
+
+                if (pose != null) {
+                    VectorF trans = pose.getTranslation();
+                    Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+
+                    double rX = rot.firstAngle;
+                    double rY = rot.secondAngle; // this one is the relevant one
+                    double rZ = rot.thirdAngle;
+
+                    telemetry.addData("rX", rX);
+                    telemetry.addData("rY", rY);
+                    telemetry.addData("rZ", rZ);
+
+                    if (Math.abs(rY) < 1) {
+                        done = true;
+                    }
+                }
+
+                telemetry.update();
+            }
+        }
+
+
         sleep(2000);
-        sideways(10, 0.3);
+        forward(10, 0.3);
+
+//        sleep(2000);
+//        sideways(10, 0.3);
     }
 
     private void baseServos(double pos) {
@@ -135,7 +210,7 @@ public class BlueAuton extends LinearOpMode {
         backLeft.setPower(power);
         backRight.setPower(power);
 
-        while (!atTarget()) {
+        while (!atTarget() && opModeIsActive()) {
             idle();
         }
 
@@ -150,10 +225,10 @@ public class BlueAuton extends LinearOpMode {
     }
 
     public void cartesianDrive(double forward, double sideways, double rotate) {
-        double FLPower = Range.clip(forward+sideways+rotate, -1, 1);
-        double FRPower = Range.clip(forward-sideways-rotate, -1, 1);
-        double BLPower = Range.clip(forward-sideways+rotate, -1, 1);
-        double BRPower = Range.clip(forward+sideways-rotate, -1, 1);
+        double FLPower = Range.clip(forward + sideways + rotate, -1, 1);
+        double FRPower = Range.clip(forward - sideways - rotate, -1, 1);
+        double BLPower = Range.clip(forward - sideways + rotate, -1, 1);
+        double BRPower = Range.clip(forward + sideways - rotate, -1, 1);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -165,4 +240,5 @@ public class BlueAuton extends LinearOpMode {
         backLeft.setPower(BLPower);
         backRight.setPower(BRPower);
     }
+
 }
