@@ -164,7 +164,6 @@ public class BlueAuton extends LinearOpMode {
         }
 
 
-        sleep(2000);
         forward(10, 0.3);
 
 //        sleep(2000);

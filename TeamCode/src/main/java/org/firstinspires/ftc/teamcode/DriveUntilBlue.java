@@ -57,12 +57,12 @@ public class DriveUntilBlue extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        sideways(-0.2,10);
+        sideways(-0.2,8);
         touchSensor(0.2);
         servo(1);
-        forward (-1,36);
+        forward (-1,24);
         servo(0);
-        sideways(0.6,36);
+        sideways(0.6,40);
 
         // drive until touch sensor pressed
         // activate servos to grab platform

@@ -110,22 +110,23 @@ public class MainTeleOp extends OpMode {
         // arm
         arm.setPower(0.6);
 
-        if (gamepad2.x) {
-            arm.setTargetPosition(-2600);
+        if (gamepad2.x && !was2X) {
+            if (arm.getTargetPosition() == -2600){
+                arm.setTargetPosition(-100);
+            } else {
+                arm.setTargetPosition(-2600);
+            }
         }
 
-        if (gamepad2.y) {
-            arm.setTargetPosition(-100);
+
+        if (gamepad2.a && !was2A) {
+            if (clamp.getPosition() == 0.2) {
+                clamp.setPosition(0.8);
+            } else {
+                clamp.setPosition(0.2);
+            }
         }
 
-
-        if (gamepad2.a) {
-            clamp.setPosition(0.8);
-        }
-
-        if (gamepad2.b) {
-            clamp.setPosition(0.2);
-        }
         if (gamepad2.start) {
             left.setPosition(0);
             right.setPosition(1);
@@ -135,6 +136,9 @@ public class MainTeleOp extends OpMode {
             right.setPosition(0);
         }
 
+
+        was2A = gamepad2.a;
+        was2X = gamepad2.x;
     }
 
 
