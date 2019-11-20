@@ -83,14 +83,11 @@ public class BlueAuton extends LinearOpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
 
-    /*
-     * If you want to see the explanations, go to the Vuforia Demo
-     */
-    private static final String VUFORIA_KEY =
-            "AeTSKkn/////AAABmXK540vJ4k8muhR6D7aoeZpbnFSenqf9a+poNXj4KY56UyTsbTrSeHqrNBi7hJweC+rEjfGiSPfJ813Az57QwdTyLzth/JgNKh3BfGz7OcgIaqCMLwDZf+BAEjFYuX2j5bKUNN/+kCrWp8AUvbPpcPHmGnnwJ7ABzmsazba+tMgSs3rcA3AvezaOGOMDwIiG71ouwN3mKOvybsDNf+2jzMCn1tywUqn3teDCGzKjV2ZeqJW9Qt2wjrvY2sI3MS176buUh/H04Da5FDj+6Dg3/fZtsIlsrVu2fAvepwWvgiCprGf6i9Q4oLBryNgCLDfpMx9EXBWAE4D5hzyBsoFITU0z6zUO+e8b6rJ0xQQr7dbV";
 
-    OpenGLMatrix lastLocation = null;
     VuforiaLocalizer vuforia;
+    VuforiaTrackables trackables;
+    VuforiaTrackable template;
+    VuforiaTrackableDefaultListener mark;
 
     @Override
     public void runOpMode() {
@@ -108,15 +105,6 @@ public class BlueAuton extends LinearOpMode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.REVERSE);
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        VuforiaTrackables trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
-        final VuforiaTrackable template = trackables.get(0);
 
         // TODO: 11/16/19 figure out range
 //        leftBase.scaleRange();
@@ -127,11 +115,11 @@ public class BlueAuton extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        trackables.activate();
-        VuforiaTrackableDefaultListener mark = (VuforiaTrackableDefaultListener) template.getListener();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+
         runtime.reset();
 
         cartesianDrive(0, 0.4, 0);
@@ -145,9 +133,8 @@ public class BlueAuton extends LinearOpMode {
                     VectorF trans = pose.getTranslation();
                     Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
 
-
                     double rX = rot.firstAngle;
-                    double rY = rot.secondAngle; // this one is the relevant one
+                    double rY = rot.secondAngle;
                     double rZ = rot.thirdAngle;
 
                     telemetry.addData("rX", rX);
@@ -168,6 +155,44 @@ public class BlueAuton extends LinearOpMode {
 
 //        sleep(2000);
 //        sideways(10, 0.3);
+    }
+
+    private void initVuforia() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey =
+                "AeTSKkn/////AAABmXK540vJ4k8muhR6D7aoeZpbnFSenqf9a+poNXj4KY56UyTsbTrSeHqrNBi7hJweC+rEjfGiSPfJ813Az57QwdTyLzth/JgNKh3BfGz7OcgIaqCMLwDZf+BAEjFYuX2j5bKUNN/+kCrWp8AUvbPpcPHmGnnwJ7ABzmsazba+tMgSs3rcA3AvezaOGOMDwIiG71ouwN3mKOvybsDNf+2jzMCn1tywUqn3teDCGzKjV2ZeqJW9Qt2wjrvY2sI3MS176buUh/H04Da5FDj+6Dg3/fZtsIlsrVu2fAvepwWvgiCprGf6i9Q4oLBryNgCLDfpMx9EXBWAE4D5hzyBsoFITU0z6zUO+e8b6rJ0xQQr7dbV";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+        template = trackables.get(0);
+
+        mark = (VuforiaTrackableDefaultListener) template.getListener();
+        trackables.activate();
+    }
+
+    private boolean markVisible() {
+        return mark.isVisible();
+    }
+
+    private double markError() {
+        OpenGLMatrix pose = mark.getPose();
+
+        VectorF trans = pose.getTranslation();
+        Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+        double tX = trans.get(0);
+        double tY = trans.get(1);
+        double tZ = trans.get(2);
+
+        double rX = rot.firstAngle;
+        double rY = rot.secondAngle;
+        double rZ = rot.thirdAngle;
+
+        return tX;
     }
 
     private void baseServos(double pos) {

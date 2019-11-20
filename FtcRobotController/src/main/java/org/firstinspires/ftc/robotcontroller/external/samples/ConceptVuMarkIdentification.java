@@ -173,6 +173,10 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
                     double rY = rot.secondAngle; // this one is the relevant one
                     double rZ = rot.thirdAngle;
 
+                    telemetry.addData("tX", tX);
+                    telemetry.addData("tY", tY);
+                    telemetry.addData("tZ", tZ);
+
                     telemetry.addData("rX", rX);
                     telemetry.addData("rY", rY);
                     telemetry.addData("rZ", rZ);
