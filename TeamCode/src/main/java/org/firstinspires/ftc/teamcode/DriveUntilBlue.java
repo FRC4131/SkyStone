@@ -80,7 +80,7 @@ public class DriveUntilBlue extends LinearOpMode {
         sideways(-0.2,8);
         touchSensor(0.2);
         servo(1);
-        forward (-1,24);
+        encoderDrive (0.5,-24,-24,5);
         servo(0);
         sideways(0.6,40);
 
@@ -89,6 +89,85 @@ public class DriveUntilBlue extends LinearOpMode {
         // drive backwards for a while
         // release servos
         // sideways part
+    }
+
+    public void encoderDrive(double speed,
+                             double leftInches, double rightInches,
+                             double timeoutS) {
+
+        int newLeftFrontTarget;
+        int newRightFrontTarget;
+        int newLeftBackTarget;
+        int newRightBackTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightFrontTarget = rightFront.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+            newLeftBackTarget = leftBack.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+
+            leftFront.setTargetPosition(newLeftFrontTarget);
+            rightFront.setTargetPosition(newRightFrontTarget);
+            leftBack.setTargetPosition(newLeftBackTarget);
+            rightBack.setTargetPosition(newRightBackTarget);
+
+            // Turn On RUN_TO_POSITION
+            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            leftFront.setPower(Math.abs(speed));
+            rightFront.setPower(Math.abs(speed));
+            leftBack.setPower(Math.abs(speed));
+            rightBack.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (leftFront.isBusy() && rightFront.isBusy())) {
+                idle();
+            }
+
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftBack.setPower(0);
+            rightBack.setPower(0);
+            // Turn off RUN_TO_POSITION
+            leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //  sleep(250);   // optional pause after each move
+        }
+    }
+
+    public void touchSensor(double power){
+        leftFront.setPower(power);
+        rightFront.setPower(power);
+        leftBack.setPower(power);
+        rightBack.setPower(power);
+
+
+        while (digitalTouch.getState() == true && opModeIsActive()){
+            sleep(1);
+        }
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
     }
 
     public void forward(double power, double inches) {
@@ -104,23 +183,6 @@ public class DriveUntilBlue extends LinearOpMode {
         while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()){
             telemetry.addData("position", leftBack.getCurrentPosition());
             telemetry.update();
-            sleep(1);
-        }
-
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
-    }
-
-    public void touchSensor(double power){
-        leftFront.setPower(power);
-        rightFront.setPower(power);
-        leftBack.setPower(power);
-        rightBack.setPower(power);
-
-
-        while (digitalTouch.getState() == true && opModeIsActive()){
             sleep(1);
         }
 
@@ -151,4 +213,66 @@ public class DriveUntilBlue extends LinearOpMode {
             sleep(1);
         }
     }
+    public void encoderSidways(double speed,
+                             double leftInches, double rightInches,
+                             double timeoutS) {
+
+        int newLeftFrontTarget;
+        int newRightFrontTarget;
+        int newLeftBackTarget;
+        int newRightBackTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightFrontTarget = rightFront.getCurrentPosition() - (int) (rightInches * COUNTS_PER_INCH);
+            newLeftBackTarget = leftBack.getCurrentPosition() - (int) (leftInches * COUNTS_PER_INCH);
+            newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+
+            leftFront.setTargetPosition(newLeftFrontTarget);
+            rightFront.setTargetPosition(newRightFrontTarget);
+            leftBack.setTargetPosition(newLeftBackTarget);
+            rightBack.setTargetPosition(newRightBackTarget);
+
+            // Turn On RUN_TO_POSITION
+            leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            leftFront.setPower(Math.abs(speed));
+            rightFront.setPower(Math.abs(speed));
+            leftBack.setPower(Math.abs(speed));
+            rightBack.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (leftFront.isBusy() && rightFront.isBusy())) {
+                idle();
+            }
+
+            leftFront.setPower(0);
+            rightFront.setPower(0);
+            leftBack.setPower(0);
+            rightBack.setPower(0);
+            // Turn off RUN_TO_POSITION
+            leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //  sleep(250);   // optional pause after each move
+        }
+    }
 }
+
