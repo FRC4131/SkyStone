@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,12 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 @TeleOp(name = "Main TeleOp", group = "Iterative Opmode")
@@ -26,6 +33,10 @@ public class MainTeleOp extends OpMode {
     private Servo left;
     private Servo right;
     DigitalChannel digitalTouch;
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    double startAngle;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -33,6 +44,10 @@ public class MainTeleOp extends OpMode {
     @Override
     public void init() {
         telemetry.addData("Status", "Initialized");
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -47,6 +62,8 @@ public class MainTeleOp extends OpMode {
         right = hardwareMap.get(Servo.class, "right");
         // digitalTouch = hardwareMap.get(DigitalChannel.class, "sensor_digital");
         // digitalTouch.setMode(DigitalChannel.Mode.INPUT);
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
 
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
@@ -91,6 +108,8 @@ public class MainTeleOp extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        startAngle = angles.firstAngle;
     }
 
     /*
@@ -99,19 +118,12 @@ public class MainTeleOp extends OpMode {
     @Override
     public void loop() {
 
-        // driving
-        double forward = gamepad1.left_stick_y;
-        double sideways = -gamepad1.left_stick_x;
-        double rotation = -gamepad1.right_stick_x;
-
-        mecanumDrive(forward, sideways, rotation);
-
 
         // arm
         arm.setPower(0.6);
 
         if (gamepad2.x && !was2X) {
-            if (arm.getTargetPosition() == -2600){
+            if (arm.getTargetPosition() == -2600) {
                 arm.setTargetPosition(-100);
             } else {
                 arm.setTargetPosition(-2600);
@@ -120,10 +132,10 @@ public class MainTeleOp extends OpMode {
 
 
         if (gamepad2.a && !was2A) {
-            if (clamp.getPosition() == 0.2) {
-                clamp.setPosition(0.8);
+            if (clamp.getPosition() == 0) {
+                clamp.setPosition(1);
             } else {
-                clamp.setPosition(0.2);
+                clamp.setPosition(0);
             }
         }
 
@@ -139,23 +151,35 @@ public class MainTeleOp extends OpMode {
 
         was2A = gamepad2.a;
         was2X = gamepad2.x;
-    }
+
+        double leftBackPower;
+        double rightBackPower;
+        double leftFrontPower;
+        double rightFrontPower;
+
+        double y = gamepad1.left_stick_y;
+        double x = -gamepad1.left_stick_x;
+        double rotation = -gamepad1.right_stick_x;
+
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+
+        double c = angles.firstAngle - startAngle;
+        double d = Math.toRadians(-c);
 
 
-    public void mecanumDrive(double forward, double sideways, double rotation) {
-        double leftBackPower = Range.clip(forward - sideways + rotation, -1, 1);
-        double rightFrontPower = Range.clip(forward - sideways - rotation, -1, 1);
-        double leftFrontPower = Range.clip(forward + sideways + rotation, -1, 1);
-        double rightBackPower = Range.clip(forward + sideways - rotation, -1, 1);
-
-
-        // Send calculated power to wheels
+        double forward = x * Math.sin(d) + y * Math.cos(d);
+        double sideways = x * Math.cos(d) - y * Math.sin(d);
+        leftBackPower = Range.clip(forward - sideways + rotation, -1, 1);
+        rightFrontPower = Range.clip(forward - sideways - rotation, -1, 1);
+        leftFrontPower = Range.clip(forward + sideways + rotation, -1, 1);
+        rightBackPower = Range.clip(forward + sideways - rotation, -1, 1);
         leftBack.setPower(leftBackPower);
         rightBack.setPower(rightBackPower);
         leftFront.setPower(leftFrontPower);
         rightFront.setPower(rightFrontPower);
-
     }
+
 
     /*
      * Code to run ONCE after the driver hits STOP
