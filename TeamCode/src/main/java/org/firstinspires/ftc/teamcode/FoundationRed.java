@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="Blue Autonomous", group="Linear Opmode")
-public class DriveUntilBlue extends LinearOpMode {
+@Autonomous(name = "Foundation Red")
+public class FoundationRed extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -22,6 +22,7 @@ public class DriveUntilBlue extends LinearOpMode {
     private Servo right;
 
     DigitalChannel digitalTouch;
+
     static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
@@ -39,6 +40,12 @@ public class DriveUntilBlue extends LinearOpMode {
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
 
+        leftFront  = hardwareMap.get(DcMotor.class, "left_front");
+        rightFront = hardwareMap.get(DcMotor.class, "right_front");
+        leftBack = hardwareMap.get(DcMotor.class, "left_back");
+        rightBack = hardwareMap.get(DcMotor.class, "right_back");
+
+
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -46,11 +53,9 @@ public class DriveUntilBlue extends LinearOpMode {
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftFront  = hardwareMap.get(DcMotor.class, "left_front");
-        rightFront = hardwareMap.get(DcMotor.class, "right_front");
-        leftBack = hardwareMap.get(DcMotor.class, "left_back");
-        rightBack = hardwareMap.get(DcMotor.class, "right_back");
         right = hardwareMap.get(Servo.class, "right");
         left = hardwareMap.get(Servo.class, "left");
         // Most robots need the motor on one side to be reversed to drive forward
@@ -70,19 +75,21 @@ public class DriveUntilBlue extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        servo(0);
 
 
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+
+        servo(0);
         runtime.reset();
-        sideways(-0.2,8);
+        encoderSideways(0.2,-4,-4,3);
         touchSensor(0.2);
         servo(1);
-        encoderDrive (0.5,-24,-24,5);
+        encoderDrive (0.5,24,24,5);
         servo(0);
-        sideways(0.6,40);
+        encoderSideways(0.6,18,18,5);
 
         // drive until touch sensor pressed
         // activate servos to grab platform
@@ -213,9 +220,9 @@ public class DriveUntilBlue extends LinearOpMode {
             sleep(1);
         }
     }
-    public void encoderSidways(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
+    public void encoderSideways(double speed,
+                               double leftInches, double rightInches,
+                               double timeoutS) {
 
         int newLeftFrontTarget;
         int newRightFrontTarget;
