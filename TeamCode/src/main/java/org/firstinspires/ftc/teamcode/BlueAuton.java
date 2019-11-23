@@ -116,9 +116,18 @@ public class BlueAuton extends LinearOpMode {
         telemetry.update();
 
 
+        initVuforia();
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        // start motors
+        while (!markVisible()) {
+            idle();
+        }
+        //stop motors
+
+        // run motors at `(markError() - target) * 0.02` power
 
         runtime.reset();
 

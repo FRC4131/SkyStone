@@ -7,8 +7,20 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Foundation Red")
-public class FoundationRed extends LinearOpMode {
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+
+@Autonomous(name = "Foundation Blue Vision")
+public class FoundationBlueVision extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -30,6 +42,12 @@ public class FoundationRed extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
+
+    VuforiaLocalizer vuforia;
+    VuforiaTrackables trackables;
+    VuforiaTrackable template;
+    VuforiaTrackableDefaultListener mark;
+
 
     @Override
     public void runOpMode() {
@@ -75,27 +93,67 @@ public class FoundationRed extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-
-
+        initVuforia();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        double power = 0.15;
+        leftFront.setPower(power);
+        rightFront.setPower(-power);
+        leftBack.setPower(-power);
+        rightBack.setPower(power);
 
-        servo(0);
-        runtime.reset();
-        encoderSideways(0.2,-4,-4,3);
-        touchSensor(0.2);
-        servo(1);
-        encoderDrive (0.5,-24,-24,5);
-        servo(0);
-        encoderSideways(0.6,18,18,5);
+        while (!markVisible()) {
+            idle();
+        }
 
-        // drive until touch sensor pressed
-        // activate servos to grab platform
-        // drive backwards for a while
-        // release servos
-        // sideways part
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+
+
+
+    }
+
+
+    private void initVuforia() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey =
+                "AeTSKkn/////AAABmXK540vJ4k8muhR6D7aoeZpbnFSenqf9a+poNXj4KY56UyTsbTrSeHqrNBi7hJweC+rEjfGiSPfJ813Az57QwdTyLzth/JgNKh3BfGz7OcgIaqCMLwDZf+BAEjFYuX2j5bKUNN/+kCrWp8AUvbPpcPHmGnnwJ7ABzmsazba+tMgSs3rcA3AvezaOGOMDwIiG71ouwN3mKOvybsDNf+2jzMCn1tywUqn3teDCGzKjV2ZeqJW9Qt2wjrvY2sI3MS176buUh/H04Da5FDj+6Dg3/fZtsIlsrVu2fAvepwWvgiCprGf6i9Q4oLBryNgCLDfpMx9EXBWAE4D5hzyBsoFITU0z6zUO+e8b6rJ0xQQr7dbV";
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+        trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
+        template = trackables.get(0);
+
+        mark = (VuforiaTrackableDefaultListener) template.getListener();
+        trackables.activate();
+    }
+
+    private boolean markVisible() {
+        return mark.isVisible();
+    }
+
+    private double markError() {
+        OpenGLMatrix pose = mark.getPose();
+
+        VectorF trans = pose.getTranslation();
+        Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+
+        double tX = trans.get(0);
+        double tY = trans.get(1);
+        double tZ = trans.get(2);
+
+        double rX = rot.firstAngle;
+        double rY = rot.secondAngle;
+        double rZ = rot.thirdAngle;
+
+        return tX;
     }
 
     public void encoderDrive(double speed,
@@ -221,8 +279,8 @@ public class FoundationRed extends LinearOpMode {
         }
     }
     public void encoderSideways(double speed,
-                               double leftInches, double rightInches,
-                               double timeoutS) {
+                             double leftInches, double rightInches,
+                             double timeoutS) {
 
         int newLeftFrontTarget;
         int newRightFrontTarget;
