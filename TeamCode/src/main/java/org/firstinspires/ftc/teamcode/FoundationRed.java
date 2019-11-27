@@ -75,6 +75,8 @@ public class FoundationRed extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
+        right.scaleRange(0,0.25);
+        left.scaleRange(0.7,1);
 
 
 
@@ -84,18 +86,13 @@ public class FoundationRed extends LinearOpMode {
 
         servo(0);
         runtime.reset();
-        encoderSideways(0.2,-4,-4,3);
+        encoderSideways(0.5,-4,-4,3);
         touchSensor(0.2);
         servo(1);
-        encoderDrive (0.5,-24,-24,5);
+        encoderDrive (0.5,-20,-20,5);
         servo(0);
-        encoderSideways(0.6,18,18,5);
+        encoderSideways(0.6,20,20,5);
 
-        // drive until touch sensor pressed
-        // activate servos to grab platform
-        // drive backwards for a while
-        // release servos
-        // sideways part
     }
 
     public void encoderDrive(double speed,

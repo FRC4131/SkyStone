@@ -78,6 +78,12 @@ public class MainTeleOp extends OpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -87,8 +93,11 @@ public class MainTeleOp extends OpMode {
 
         clamp.setPosition(0);
 
-        left.setPosition(0);
-        right.setPosition(0);
+        right.setDirection(Servo.Direction.REVERSE);
+
+        right.scaleRange(0,0.25);
+        left.scaleRange(0.7,1);
+
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -110,6 +119,8 @@ public class MainTeleOp extends OpMode {
         runtime.reset();
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         startAngle = angles.firstAngle;
+        left.setPosition(0);
+        right.setPosition(0);
     }
 
     /*
@@ -123,11 +134,15 @@ public class MainTeleOp extends OpMode {
         arm.setPower(0.6);
 
         if (gamepad2.x && !was2X) {
-            if (arm.getTargetPosition() == -2600) {
-                arm.setTargetPosition(-100);
+            if (arm.getTargetPosition() == -2600) { // arm is down
+                arm.setTargetPosition(-2200); // set to middle
             } else {
-                arm.setTargetPosition(-2600);
+                arm.setTargetPosition(-2600); // set to down
             }
+        }
+
+        if(gamepad2.y){
+            arm.setTargetPosition(-100); // arm is up (all the way back)
         }
 
 
@@ -141,11 +156,11 @@ public class MainTeleOp extends OpMode {
 
         if (gamepad2.start) {
             left.setPosition(0);
-            right.setPosition(1);
+            right.setPosition(0);
         }
         if (gamepad2.back) {
             left.setPosition(1);
-            right.setPosition(0);
+            right.setPosition(1);
         }
 
 

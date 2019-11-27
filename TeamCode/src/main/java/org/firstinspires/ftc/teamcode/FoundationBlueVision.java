@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous(name = "Foundation Blue Vision")
+@Autonomous(name = "Foundation Blue Vision_")
 public class FoundationBlueVision extends LinearOpMode {
 
     // Declare OpMode members.
@@ -98,21 +98,23 @@ public class FoundationBlueVision extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        double power = 0.15;
-        leftFront.setPower(power);
-        rightFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightBack.setPower(power);
 
         while (!markVisible()) {
-            idle();
+            sideways(0.15,2);
+            sleep(300);
         }
 
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
 
+        double target = 90;
+
+        while (Math.abs(target - markPos()) > 5) {
+            double power = (target - markPos()) * 0.001;
+
+            leftFront.setPower(power);
+            rightFront.setPower(-power);
+            leftBack.setPower(-power);
+            rightBack.setPower(power);
+        }
 
 
     }
@@ -139,7 +141,7 @@ public class FoundationBlueVision extends LinearOpMode {
         return mark.isVisible();
     }
 
-    private double markError() {
+    private double markPos() {
         OpenGLMatrix pose = mark.getPose();
 
         VectorF trans = pose.getTranslation();
@@ -277,6 +279,11 @@ public class FoundationBlueVision extends LinearOpMode {
             telemetry.update();
             sleep(1);
         }
+
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
     }
     public void encoderSideways(double speed,
                              double leftInches, double rightInches,
