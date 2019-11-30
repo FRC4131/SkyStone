@@ -99,6 +99,7 @@ public class MainTeleOp extends OpMode {
         left.scaleRange(0.7,1);
 
 
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -167,14 +168,25 @@ public class MainTeleOp extends OpMode {
         was2A = gamepad2.a;
         was2X = gamepad2.x;
 
-        double leftBackPower;
-        double rightBackPower;
-        double leftFrontPower;
-        double rightFrontPower;
 
-        double y = gamepad1.left_stick_y;
-        double x = -gamepad1.left_stick_x;
-        double rotation = -gamepad1.right_stick_x;
+        double x = gamepad1.left_stick_x;
+        double y = -gamepad1.left_stick_y;
+
+        x = x * x * Math.signum(x);
+        y = y * y * Math.signum(y);
+
+//        if (gamepad1.left_stick_y >= 0){
+//             y = (gamepad1.left_stick_y)*(gamepad1.left_stick_y);
+//        } else {
+//            y = -(gamepad1.left_stick_y)*(gamepad1.left_stick_y);
+//        }
+//        if (gamepad1.left_stick_x >= 0){
+//            x = -(gamepad1.left_stick_x)*(gamepad1.left_stick_x);
+//        } else {
+//            x = (gamepad1.left_stick_x)*(gamepad1.left_stick_x);
+//        }
+
+        double rotation = gamepad1.right_stick_x;
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         gravity = imu.getGravity();
@@ -185,10 +197,12 @@ public class MainTeleOp extends OpMode {
 
         double forward = x * Math.sin(d) + y * Math.cos(d);
         double sideways = x * Math.cos(d) - y * Math.sin(d);
-        leftBackPower = Range.clip(forward - sideways + rotation, -1, 1);
-        rightFrontPower = Range.clip(forward - sideways - rotation, -1, 1);
-        leftFrontPower = Range.clip(forward + sideways + rotation, -1, 1);
-        rightBackPower = Range.clip(forward + sideways - rotation, -1, 1);
+
+        double leftBackPower = Range.clip(forward - sideways + rotation, -1, 1);
+        double rightFrontPower = Range.clip(forward - sideways - rotation, -1, 1);
+        double leftFrontPower = Range.clip(forward + sideways + rotation, -1, 1);
+        double rightBackPower = Range.clip(forward + sideways - rotation, -1, 1);
+
         leftBack.setPower(leftBackPower);
         rightBack.setPower(rightBackPower);
         leftFront.setPower(leftFrontPower);
