@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -60,10 +61,10 @@ public class FoundationRed extends LinearOpMode {
         left = hardwareMap.get(Servo.class, "left");
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotor.Direction.FORWARD);
+        rightFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -86,12 +87,12 @@ public class FoundationRed extends LinearOpMode {
 
         servo(0);
         runtime.reset();
-        encoderSideways(0.5,-4,-4,3);
-        touchSensor(0.2);
+        encoderSideways(0.25, -2, -2, 3);
+        touchSensor(0.25);
         servo(1);
-        encoderDrive (0.5,-20,-20,5);
+        encoderDrive(0.25, -15, -15, 5);
         servo(0);
-        encoderSideways(0.6,20,20,5);
+        encoderSideways(0.3, 10, 10, 5);
 
     }
 

@@ -78,10 +78,15 @@ public class MainTeleOp extends OpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -172,21 +177,12 @@ public class MainTeleOp extends OpMode {
         double x = gamepad1.left_stick_x;
         double y = -gamepad1.left_stick_y;
 
-        x = x * x * Math.signum(x);
-        y = y * y * Math.signum(y);
+//        x = x * x * Math.signum(x);
+//        y = y * y * Math.signum(y);
 
-//        if (gamepad1.left_stick_y >= 0){
-//             y = (gamepad1.left_stick_y)*(gamepad1.left_stick_y);
-//        } else {
-//            y = -(gamepad1.left_stick_y)*(gamepad1.left_stick_y);
-//        }
-//        if (gamepad1.left_stick_x >= 0){
-//            x = -(gamepad1.left_stick_x)*(gamepad1.left_stick_x);
-//        } else {
-//            x = (gamepad1.left_stick_x)*(gamepad1.left_stick_x);
-//        }
+        double a = gamepad1.right_stick_x;
 
-        double rotation = gamepad1.right_stick_x;
+        double rotation = Math.sqrt(Math.abs(a)) * Math.signum(a);
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         gravity = imu.getGravity();
