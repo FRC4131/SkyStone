@@ -99,6 +99,7 @@ public class FoundationBlue extends LinearOpMode {
         // drive backwards for a while
         // release servos
         // sideways part
+        // remember to do red autonomous for red
     }
 
     public void encoderDrive(double speed,
