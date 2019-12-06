@@ -83,10 +83,10 @@ public class MainTeleOp extends OpMode {
 //        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -140,10 +140,10 @@ public class MainTeleOp extends OpMode {
         arm.setPower(0.6);
 
         if (gamepad2.x && !was2X) {
-            if (arm.getTargetPosition() == -2600) { // arm is down
+            if (arm.getTargetPosition() == -2550) { // arm is down
                 arm.setTargetPosition(-2200); // set to middle
             } else {
-                arm.setTargetPosition(-2600); // set to down
+                arm.setTargetPosition(-2550); // set to down
             }
         }
 
@@ -180,9 +180,7 @@ public class MainTeleOp extends OpMode {
 //        x = x * x * Math.signum(x);
 //        y = y * y * Math.signum(y);
 
-        double a = gamepad1.right_stick_x;
-
-        double rotation = Math.sqrt(Math.abs(a)) * Math.signum(a);
+        double rotation = gamepad1.right_stick_x / 2;
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         gravity = imu.getGravity();

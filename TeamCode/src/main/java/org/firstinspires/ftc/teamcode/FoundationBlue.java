@@ -91,8 +91,9 @@ public class FoundationBlue extends LinearOpMode {
         servo(1);
         encoderDrive(0.25, -15, -15, 5);
         servo(0);
-        encoderSideways(0.3, -9, -9, 5);
-
+        encoderSideways(0.3, -2.5, -2.5, 5);
+        encoderDrive(0.25, 0.75, 0.75, 3);
+        encoderSideways(0.3, -7, -7, 5);
         // drive until touch sensor pressed
         // activate servos to grab platform
         // drive backwards for a while
@@ -169,8 +170,17 @@ public class FoundationBlue extends LinearOpMode {
         rightBack.setPower(power);
 
 
-        while (digitalTouch.getState() == true && opModeIsActive()){
-            sleep(1);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        while (digitalTouch.getState() && opModeIsActive()) {
+            idle();
+            telemetry.addData("rf", rightFront.getCurrentPosition());
+            telemetry.addData("lf", leftFront.getCurrentPosition());
+            telemetry.update();
         }
 
         leftFront.setPower(0);
