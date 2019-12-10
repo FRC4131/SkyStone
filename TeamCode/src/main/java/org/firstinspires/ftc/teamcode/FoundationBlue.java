@@ -24,13 +24,13 @@ public class FoundationBlue extends LinearOpMode {
 
     DigitalChannel digitalTouch;
 
-    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+    static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
+    static final double DRIVE_GEAR_REDUCTION = 2.0 * 2;     // This is < 1.0 if geared UP
+    static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
+    static final double DRIVE_SPEED = 0.6;
+    static final double TURN_SPEED = 0.5;
 
     @Override
     public void runOpMode() {
@@ -41,7 +41,7 @@ public class FoundationBlue extends LinearOpMode {
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
 
-        leftFront  = hardwareMap.get(DcMotor.class, "left_front");
+        leftFront = hardwareMap.get(DcMotor.class, "left_front");
         rightFront = hardwareMap.get(DcMotor.class, "right_front");
         leftBack = hardwareMap.get(DcMotor.class, "left_back");
         rightBack = hardwareMap.get(DcMotor.class, "right_back");
@@ -52,19 +52,14 @@ public class FoundationBlue extends LinearOpMode {
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         right = hardwareMap.get(Servo.class, "right");
         left = hardwareMap.get(Servo.class, "left");
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
-        leftFront.setDirection(DcMotor.Direction.FORWARD);
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -76,8 +71,8 @@ public class FoundationBlue extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        right.scaleRange(0,0.25);
-        left.scaleRange(0.7,1);
+        right.scaleRange(0.125, 0.25); // 0, 0.25
+        left.scaleRange(0.7, 0.85); // 0.7, 1
 
 
         // Wait for the game to start (driver presses PLAY)
@@ -86,23 +81,24 @@ public class FoundationBlue extends LinearOpMode {
 
         servo(0);
         runtime.reset();
-        encoderSideways(0.25, 2, 2, 3);
+        encoderSideways(0.25, -3, -3, 3);
         touchSensor(0.25);
         servo(1);
-        encoderDrive(0.25, -15, -15, 5);
+        encoderDrive(0.25, 0.25, -15, -15, 5);
         servo(0);
-        encoderSideways(0.3, -2.5, -2.5, 5);
-        encoderDrive(0.25, 0.75, 0.75, 3);
-        encoderSideways(0.3, -7, -7, 5);
+        encoderSideways(0.3, 2.5, 2.5, 5);
+        encoderDrive(0.25, 0.25, 0.25, 0.25, 3);
+        encoderSideways(0.3, 7, 7, 5);
         // drive until touch sensor pressed
         // activate servos to grab platform
         // drive backwards for a while
         // release servos
         // sideways part
-        // remember to do red autonomous for red
+        // remember to do red autonomous for repackage org.firstinspires.ftc.teamcode;
     }
 
-    public void encoderDrive(double speed,
+
+    public void encoderDrive(double speedLeft, double speedRight,
                              double leftInches, double rightInches,
                              double timeoutS) {
 
@@ -133,10 +129,10 @@ public class FoundationBlue extends LinearOpMode {
 
             // reset the timeout time and start motion.
             runtime.reset();
-            leftFront.setPower(Math.abs(speed));
-            rightFront.setPower(Math.abs(speed));
-            leftBack.setPower(Math.abs(speed));
-            rightBack.setPower(Math.abs(speed));
+            leftFront.setPower(Math.abs(speedLeft));
+            rightFront.setPower(Math.abs(speedRight));
+            leftBack.setPower(Math.abs(speedLeft));
+            rightBack.setPower(Math.abs(speedRight));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -164,18 +160,11 @@ public class FoundationBlue extends LinearOpMode {
         }
     }
 
-    public void touchSensor(double power){
+    public void touchSensor(double power) {
         leftFront.setPower(power);
         rightFront.setPower(power);
         leftBack.setPower(power);
         rightBack.setPower(power);
-
-
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         while (digitalTouch.getState() && opModeIsActive()) {
             idle();
@@ -198,9 +187,9 @@ public class FoundationBlue extends LinearOpMode {
 
         int start = leftBack.getCurrentPosition();
 
-        double distance = inches/(4*Math.PI)*1440;
+        double distance = inches / (4 * Math.PI) * 1440;
 
-        while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()){
+        while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()) {
             telemetry.addData("position", leftBack.getCurrentPosition());
             telemetry.update();
             sleep(1);
@@ -212,12 +201,13 @@ public class FoundationBlue extends LinearOpMode {
         rightBack.setPower(0);
     }
 
-    public void servo(int servoPosition){
+    public void servo(int servoPosition) {
         left.setPosition(servoPosition);
         right.setPosition(servoPosition);
 
     }
-    public void sideways(double power, double inches){
+
+    public void sideways(double power, double inches) {
         leftFront.setPower(power);
         rightFront.setPower(-power);
         leftBack.setPower(-power);
@@ -225,17 +215,18 @@ public class FoundationBlue extends LinearOpMode {
 
         int start = leftBack.getCurrentPosition();
 
-        double distance = inches/(4*Math.PI)*1440;
+        double distance = inches / (4 * Math.PI) * 1440;
 
-        while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()){
+        while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()) {
             telemetry.addData("position", leftBack.getCurrentPosition());
             telemetry.update();
             sleep(1);
         }
     }
+
     public void encoderSideways(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
+                                double leftInches, double rightInches,
+                                double timeoutS) {
 
         int newLeftFrontTarget;
         int newRightFrontTarget;
@@ -295,4 +286,3 @@ public class FoundationBlue extends LinearOpMode {
         }
     }
 }
-

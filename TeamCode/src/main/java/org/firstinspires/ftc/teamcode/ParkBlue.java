@@ -1,29 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-
-
-@Disabled
-@Autonomous(name = "Red Vision_")
-public class VisionRed extends LinearOpMode {
+@Autonomous(name = "Park Blue")
+public class ParkBlue extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -39,18 +24,12 @@ public class VisionRed extends LinearOpMode {
     DigitalChannel digitalTouch;
 
     static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 2.0;     // This is < 1.0 if geared UP
+    static final double DRIVE_GEAR_REDUCTION = 2.0 * 2;     // This is < 1.0 if geared UP
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.6;
     static final double TURN_SPEED = 0.5;
-
-    VuforiaLocalizer vuforia;
-    VuforiaTrackables trackables;
-    VuforiaTrackable template;
-    VuforiaTrackableDefaultListener mark;
-
 
     @Override
     public void runOpMode() {
@@ -72,11 +51,6 @@ public class VisionRed extends LinearOpMode {
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         right = hardwareMap.get(Servo.class, "right");
         left = hardwareMap.get(Servo.class, "left");
         // Most robots need the motor on one side to be reversed to drive forward
@@ -96,72 +70,27 @@ public class VisionRed extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        initVuforia();
+        right.scaleRange(0, 0.25);
+        left.scaleRange(0.7, 1);
+
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
 
-        while (!markVisible()) {
-            sideways(0.15, 2);
-            sleep(300);
-        }
-
-
-        double target = 90;
-
-        while (Math.abs(target - markPos()) > 5) {
-            double power = (target - markPos()) * 0.001;
-
-            leftFront.setPower(power);
-            rightFront.setPower(-power);
-            leftBack.setPower(-power);
-            rightBack.setPower(power);
-        }
-
-
+        servo(0);
+        runtime.reset();
+        encoderSideways(0.25, 5, 55, 5);
+        // drive until touch sensor pressed
+        // activate servos to grab platform
+        // drive backwards for a while
+        // release servos
+        // sideways part
+        // remember to do red autonomous for repackage org.firstinspires.ftc.teamcode;
     }
 
 
-    private void initVuforia() {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-//        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey =
-                "AeTSKkn/////AAABmXK540vJ4k8muhR6D7aoeZpbnFSenqf9a+poNXj4KY56UyTsbTrSeHqrNBi7hJweC+rEjfGiSPfJ813Az57QwdTyLzth/JgNKh3BfGz7OcgIaqCMLwDZf+BAEjFYuX2j5bKUNN/+kCrWp8AUvbPpcPHmGnnwJ7ABzmsazba+tMgSs3rcA3AvezaOGOMDwIiG71ouwN3mKOvybsDNf+2jzMCn1tywUqn3teDCGzKjV2ZeqJW9Qt2wjrvY2sI3MS176buUh/H04Da5FDj+6Dg3/fZtsIlsrVu2fAvepwWvgiCprGf6i9Q4oLBryNgCLDfpMx9EXBWAE4D5hzyBsoFITU0z6zUO+e8b6rJ0xQQr7dbV";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-        trackables = this.vuforia.loadTrackablesFromAsset("Skystone");
-        template = trackables.get(0);
-
-        mark = (VuforiaTrackableDefaultListener) template.getListener();
-        trackables.activate();
-    }
-
-    private boolean markVisible() {
-        return mark.isVisible();
-    }
-
-    private double markPos() {
-        OpenGLMatrix pose = mark.getPose();
-
-        VectorF trans = pose.getTranslation();
-        Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-        double tX = trans.get(0);
-        double tY = trans.get(1);
-        double tZ = trans.get(2);
-
-        double rX = rot.firstAngle;
-        double rY = rot.secondAngle;
-        double rZ = rot.thirdAngle;
-
-        return tX;
-    }
-
-    public void encoderDrive(double speed,
+    public void encoderDrive(double speedLeft, double speedRight,
                              double leftInches, double rightInches,
                              double timeoutS) {
 
@@ -192,10 +121,10 @@ public class VisionRed extends LinearOpMode {
 
             // reset the timeout time and start motion.
             runtime.reset();
-            leftFront.setPower(Math.abs(speed));
-            rightFront.setPower(Math.abs(speed));
-            leftBack.setPower(Math.abs(speed));
-            rightBack.setPower(Math.abs(speed));
+            leftFront.setPower(Math.abs(speedLeft));
+            rightFront.setPower(Math.abs(speedRight));
+            leftBack.setPower(Math.abs(speedLeft));
+            rightBack.setPower(Math.abs(speedRight));
 
             // keep looping while we are still active, and there is time left, and both motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -229,9 +158,11 @@ public class VisionRed extends LinearOpMode {
         leftBack.setPower(power);
         rightBack.setPower(power);
 
-
-        while (digitalTouch.getState() == true && opModeIsActive()) {
-            sleep(1);
+        while (digitalTouch.getState() && opModeIsActive()) {
+            idle();
+            telemetry.addData("rf", rightFront.getCurrentPosition());
+            telemetry.addData("lf", leftFront.getCurrentPosition());
+            telemetry.update();
         }
 
         leftFront.setPower(0);
@@ -283,11 +214,6 @@ public class VisionRed extends LinearOpMode {
             telemetry.update();
             sleep(1);
         }
-
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
     }
 
     public void encoderSideways(double speed,
@@ -352,6 +278,3 @@ public class VisionRed extends LinearOpMode {
         }
     }
 }
-
-
-
