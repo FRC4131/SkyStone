@@ -38,6 +38,7 @@ public class MainTeleOp extends OpMode {
     Orientation angles;
     Acceleration gravity;
     double startAngle;
+    double targetAngle = 0;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -187,7 +188,9 @@ public class MainTeleOp extends OpMode {
 //        x = x * x * Math.signum(x);
 //        y = y * y * Math.signum(y);
 
-        double rotation = gamepad1.right_stick_x;
+        // double rotation = gamepad1.right_stick_x;
+
+        targetAngle += gamepad1.right_stick_x;
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         gravity = imu.getGravity();
@@ -195,6 +198,17 @@ public class MainTeleOp extends OpMode {
         double c = angles.firstAngle - startAngle;
         double d = Math.toRadians(-c);
 
+        double angleDifference = c - targetAngle;
+
+        while (angleDifference < -180) {
+            angleDifference += 360;
+        }
+
+        while (angleDifference > 180) {
+            angleDifference -= 360;
+        }
+
+        double rotation = angleDifference * 0.01;
 
         double forward = x * Math.sin(d) + y * Math.cos(d);
         double sideways = x * Math.cos(d) - y * Math.sin(d);
