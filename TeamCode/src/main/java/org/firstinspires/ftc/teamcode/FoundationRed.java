@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 @Autonomous(name = "Foundation Red")
 public class FoundationRed extends LinearOpMode {
@@ -31,6 +39,10 @@ public class FoundationRed extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    double startAngle;
 
     @Override
     public void runOpMode() {
@@ -40,6 +52,11 @@ public class FoundationRed extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
         telemetry.addData("Status", "Resetting Encoders");    //
         telemetry.update();
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
 
         leftFront  = hardwareMap.get(DcMotor.class, "left_front");
         rightFront = hardwareMap.get(DcMotor.class, "right_front");
@@ -52,8 +69,17 @@ public class FoundationRed extends LinearOpMode {
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         right = hardwareMap.get(Servo.class, "right");
         left = hardwareMap.get(Servo.class, "left");
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -74,21 +100,23 @@ public class FoundationRed extends LinearOpMode {
         right.scaleRange(0.125, 0.25); // 0, 0.25
         left.scaleRange(0.7, 0.85); // 0.7, 1
 
-
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-
-        servo(0);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        startAngle = angles.firstAngle;
+        //servo(0);
         runtime.reset();
-        encoderSideways(0.25, 2, 2, 3);
-        touchSensor(0.25);
-        servo(1);
-        encoderDrive(0.25, -15, -15, 5);
-        servo(0);
-        encoderSideways(0.3, -2.5, -2.5, 5);
-        encoderDrive(0.25, 0.25, 0.25, 3);
-        encoderSideways(0.3, -7, -7, 5);
+        //encoderSideways(0.25, 2, 2, 3);
+        //touchSensor(0.25);
+        //servo(1);
+        //encoderDrive(0.25, -15, -15, 5);
+        //servo(0);
+        //encoderSideways(0.3, -2.5, -2.5, 5);
+        //encoderDrive(0.25, 0.25, 0.25, 3);
+        //encoderSideways(0.3, -7, -7, 5);
+
+        rotateToAngle(90, 0.3);
         // drive until touch sensor pressed
         // activate servos to grab platform
         // drive backwards for a while
@@ -96,6 +124,43 @@ public class FoundationRed extends LinearOpMode {
         // sideways part
         // remember to do red autonomous for red
     }
+
+    public void rotateToAngle(double targetAngle, double power) {
+        double angleDifference = offsetAngle(targetAngle);
+        while (Math.abs(angleDifference) > 1 && opModeIsActive()) {
+            double rotation = Range.clip(angleDifference * 0.03 * power, -1, 1);
+            telemetry.addData("angleDifference", angleDifference);
+            telemetry.update();
+            leftBack.setPower(rotation);
+            rightBack.setPower(-rotation);
+            leftFront.setPower(rotation);
+            rightFront.setPower(-rotation);
+
+            angleDifference = offsetAngle(targetAngle);
+            idle();
+        }
+
+    }
+
+    public double offsetAngle(double targetAngle) {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+
+        double currentAngle = angles.firstAngle - startAngle;
+
+        double angleDifference = currentAngle - targetAngle;
+
+        while (angleDifference < -180) {
+            angleDifference += 360;
+        }
+        while (angleDifference > 180) {
+            angleDifference -= 360;
+        }
+
+        return angleDifference;
+
+    }
+
 
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
