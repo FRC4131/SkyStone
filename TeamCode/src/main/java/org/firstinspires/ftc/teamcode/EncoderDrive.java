@@ -24,7 +24,7 @@ abstract class EncoderDrive extends LinearOpMode {
     DigitalChannel digitalTouch;
 
     static final double COUNTS_PER_MOTOR_REV = 1440;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 2.0 / 6;     // This is < 1.0 if geared UP
+    static final double DRIVE_GEAR_REDUCTION = 2./3.;     // This is < 1.0 if geared UP
     static final double WHEEL_DIAMETER_INCHES = 4.0;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
@@ -107,7 +107,7 @@ abstract class EncoderDrive extends LinearOpMode {
         rightBack.setPower(power);
 
 
-        while (digitalTouch.getState() == true && opModeIsActive()) {
+        while (digitalTouch.getState() && opModeIsActive()) {
             sleep(1);
         }
 
@@ -125,7 +125,7 @@ abstract class EncoderDrive extends LinearOpMode {
 
         int start = leftBack.getCurrentPosition();
 
-        double distance = inches / (4 * Math.PI) * 1440;
+        double distance = inches * 1440. / (4 * Math.PI) * 2/3;
 
         while (Math.abs(leftBack.getCurrentPosition() - start) < distance && opModeIsActive()) {
             telemetry.addData("position", leftBack.getCurrentPosition());
@@ -168,7 +168,7 @@ abstract class EncoderDrive extends LinearOpMode {
     }
 
     public void encoderSideways(double speed,
-                                double leftInches, double rightInches,
+                                double inches,
                                 double timeoutS) {
 
         int newLeftFrontTarget;
@@ -180,10 +180,10 @@ abstract class EncoderDrive extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
-            newRightFrontTarget = rightFront.getCurrentPosition() - (int) (rightInches * COUNTS_PER_INCH);
-            newLeftBackTarget = leftBack.getCurrentPosition() - (int) (leftInches * COUNTS_PER_INCH);
-            newRightBackTarget = rightBack.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+            newLeftFrontTarget = leftFront.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH);
+            newRightFrontTarget = rightFront.getCurrentPosition() - (int) (inches * COUNTS_PER_INCH);
+            newLeftBackTarget = leftBack.getCurrentPosition() - (int) (inches * COUNTS_PER_INCH);
+            newRightBackTarget = rightBack.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH);
 
             leftFront.setTargetPosition(newLeftFrontTarget);
             rightFront.setTargetPosition(newRightFrontTarget);
