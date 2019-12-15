@@ -209,6 +209,7 @@ public class MainTeleOp extends OpMode {
         }
 
         double rotation = angleDifference * 0.01;
+//        double rotation = gamepad1.right_stick_x;
 
         double forward = x * Math.sin(d) + y * Math.cos(d);
         double sideways = x * Math.cos(d) - y * Math.sin(d);

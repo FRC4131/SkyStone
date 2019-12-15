@@ -1,11 +1,19 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 abstract class EncoderDrive extends LinearOpMode {
@@ -30,8 +38,49 @@ abstract class EncoderDrive extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.6;
     static final double TURN_SPEED = 0.5;
+    BNO055IMU imu;
+    Orientation angles;
+    Acceleration gravity;
+    double startAngle;
 
     abstract public void runOpMode();
+
+    public void rotateToAngle(double targetAngle, double power) {
+        double angleDifference = offsetAngle(targetAngle);
+        while (Math.abs(angleDifference) > 1 && opModeIsActive()) {
+            double rotation = Range.clip(angleDifference * 0.03 * power, -1, 1);
+            telemetry.addData("angleDifference", angleDifference);
+            telemetry.update();
+            leftBack.setPower(rotation);
+            rightBack.setPower(-rotation);
+            leftFront.setPower(rotation);
+            rightFront.setPower(-rotation);
+
+            angleDifference = offsetAngle(targetAngle);
+            idle();
+        }
+
+    }
+
+
+    public double offsetAngle(double targetAngle) {
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        gravity = imu.getGravity();
+
+        double currentAngle = angles.firstAngle - startAngle;
+
+        double angleDifference = currentAngle - targetAngle;
+
+        while (angleDifference < -180) {
+            angleDifference += 360;
+        }
+        while (angleDifference > 180) {
+            angleDifference -= 360;
+        }
+
+        return angleDifference;
+
+    }
 
     public void encoderDrive(double speed,
                              double leftInches, double rightInches,
