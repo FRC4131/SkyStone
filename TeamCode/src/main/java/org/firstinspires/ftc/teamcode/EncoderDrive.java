@@ -47,7 +47,7 @@ abstract class EncoderDrive extends LinearOpMode {
 
     public void rotateToAngle(double targetAngle, double power) {
         double angleDifference = offsetAngle(targetAngle);
-        while (Math.abs(angleDifference) > 1 && opModeIsActive()) {
+        while (Math.abs(angleDifference) > 0.5 && opModeIsActive()) {
             double rotation = Range.clip(angleDifference * 0.03 * power, -1, 1);
             telemetry.addData("angleDifference", angleDifference);
             telemetry.update();

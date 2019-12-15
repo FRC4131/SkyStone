@@ -97,8 +97,8 @@ public class FoundationRed extends LinearOpMode {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        right.scaleRange(0.125, 0.25); // 0, 0.25
-        left.scaleRange(0.7, 0.85); // 0.7, 1
+        right.scaleRange(0.125, 0.25);
+        left.scaleRange(0.7, 0.85);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

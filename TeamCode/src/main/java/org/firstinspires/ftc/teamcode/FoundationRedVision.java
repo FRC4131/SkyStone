@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous(name = "Red Vision")
+@Autonomous(name = "Red Vision_")
 public class FoundationRedVision extends EncoderDrive {
 
     private DcMotor arm = null;
@@ -45,6 +45,9 @@ public class FoundationRedVision extends EncoderDrive {
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
 
         leftFront  = hardwareMap.get(DcMotor.class, "left_front");
         rightFront = hardwareMap.get(DcMotor.class, "right_front");
@@ -95,36 +98,39 @@ public class FoundationRedVision extends EncoderDrive {
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        right.scaleRange(0, 0.25);
-        left.scaleRange(0.7, 1);
+        right.scaleRange(0.125, 0.25);
+        left.scaleRange(0.7, 0.85);
 
         initVuforia();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        servo(0);
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         startAngle = angles.firstAngle;
 
-        encoderDrive(0.3, 17,17,5 );
+        encoderDrive(0.3, 19,19,5 );
         arm.setPower(0.5);
 
+        int counter = 0;
+
         while (!markVisible()) {
-            encoderSideways(0.15,-7, 1);
+            encoderSideways(0.35,-7, 1);
             sleep(100);
+            counter += 1;
         }
 
         double target = 90;
 
         while (Math.abs(target - markPos()) > 5) {
-            double power = (target - markPos()) * 0.002;
-
+            double power = (target - markPos()) * 0.003;
             leftFront.setPower(power);
             rightFront.setPower(-power);
             leftBack.setPower(-power);
             rightBack.setPower(power);
         }
 
-        arm.setTargetPosition(-2600);
+        arm.setTargetPosition(-2500);
         clamp.setPosition(1);
         sleep(1000);
 
@@ -132,20 +138,26 @@ public class FoundationRedVision extends EncoderDrive {
         sleep(100);
 
         clamp.setPosition(0);
-        sleep(1000);
+        sleep(900);
 
-//        rotateToAngle(0, 0.3);
-
-        arm.setTargetPosition(-300);
+        arm.setTargetPosition(-100);
         encoderDrive(0.5,-4,-4,3);
-        rotateToAngle(0,0.3);
-        encoderSideways(0.8,150,10);
-        rotateToAngle(0, 0.3);
-        encoderSideways(0.5,12,5);
+        encoderSideways(0.7,counter*7,5);
+        rotateToAngle(0,0.7);
+        encoderSideways(0.9,72,10); // cross line
+        rotateToAngle(0, 0.7);
+        encoderSideways(0.5,32,5); // aligned to wall
+        encoderSideways(0.5,-18,5);
+        rotateToAngle(0, 0.7);
         touchSensor(0.3);
-        encoderDrive(0.5,-24,-24,5);
-        servo(1);
-        encoderSideways(0.5,25,5);
+        servo(1); //servo down
+        arm.setTargetPosition(-2500);
+        encoderDrive(0.8,-50,-50,5); // pull foundation
+        clamp.setPosition(1);
+        arm.setTargetPosition(-100);
+        servo(0); // servo up
+        encoderSideways(0.8,-57,5); // park
+
 
 
     }
