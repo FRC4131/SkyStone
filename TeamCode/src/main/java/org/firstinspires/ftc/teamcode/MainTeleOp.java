@@ -40,6 +40,10 @@ public class MainTeleOp extends OpMode {
     double startAngle;
     double targetAngle = 0;
 
+    private static final int ARM_UP = -100;
+    private static final int ARM_MIDDLE = -2250;
+    private static final int ARM_DOWN = -2575;
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -101,17 +105,15 @@ public class MainTeleOp extends OpMode {
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        arm.setTargetPosition(-100);
+        arm.setTargetPosition(ARM_UP);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         clamp.setPosition(0);
 
         right.setDirection(Servo.Direction.REVERSE);
 
-        right.scaleRange(0,0.25);
-        left.scaleRange(0.7,1);
-
-
+        right.scaleRange(0.125, 0.25);
+        left.scaleRange(0.7, 0.85);
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -148,15 +150,15 @@ public class MainTeleOp extends OpMode {
         arm.setPower(0.6);
 
         if (gamepad2.x && !was2X) {
-            if (arm.getTargetPosition() == -2550) { // arm is down
-                arm.setTargetPosition(-2200); // set to middle
+            if (arm.getTargetPosition() == ARM_DOWN) {
+                arm.setTargetPosition(ARM_MIDDLE);
             } else {
-                arm.setTargetPosition(-2550); // set to down
+                arm.setTargetPosition(ARM_DOWN);
             }
         }
 
         if(gamepad2.y){
-            arm.setTargetPosition(-100); // arm is up (all the way back)
+            arm.setTargetPosition(ARM_UP);
         }
 
 
@@ -186,7 +188,7 @@ public class MainTeleOp extends OpMode {
         double y = -gamepad1.left_stick_y;
 
 //        x = x * x * Math.signum(x);
-//        y = y * y * Math.signum(y);
+//        y = y * y * Math.signum(y);[
 
         // double rotation = gamepad1.right_stick_x;
 
@@ -208,8 +210,8 @@ public class MainTeleOp extends OpMode {
             angleDifference -= 360;
         }
 
-        double rotation = angleDifference * 0.01;
-//        double rotation = gamepad1.right_stick_x;
+//        double rotation = angleDifference * 0.01;
+        double rotation = gamepad1.right_stick_x;
 
         double forward = x * Math.sin(d) + y * Math.cos(d);
         double sideways = x * Math.cos(d) - y * Math.sin(d);

@@ -130,7 +130,7 @@ public class FoundationRedVision extends EncoderDrive {
             rightBack.setPower(power);
         }
 
-        arm.setTargetPosition(-2500);
+        arm.setTargetPosition(-2575);
         clamp.setPosition(1);
         sleep(1000);
 
@@ -151,15 +151,14 @@ public class FoundationRedVision extends EncoderDrive {
         rotateToAngle(0, 0.7);
         touchSensor(0.3);
         servo(1); //servo down
-        arm.setTargetPosition(-2500);
+        arm.setTargetPosition(-2575);
         encoderDrive(0.8,-50,-50,5); // pull foundation
         clamp.setPosition(1);
         arm.setTargetPosition(-100);
         servo(0); // servo up
+        clamp.setPosition(0);
         encoderSideways(0.8,-57,5); // park
-
-
-
+        arm.setTargetPosition(-30);
     }
 
 
