@@ -213,7 +213,7 @@ public class MainTeleOp extends OpMode {
 //        x = x * x * Math.signum(x);
 //        y = y * y * Math.signum(y);[
 
-        //double rotation = gamepad1.right_stick_x;
+        // double rotation = gamepad1.right_stick_x;
 
         targetAngle += gamepad1.right_stick_x;
 
