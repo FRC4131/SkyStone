@@ -163,14 +163,14 @@ public class MainTeleOp extends OpMode {
         // arm
         arm.setPower(0.6);
 
-        if(gamepad2.left_bumper) {
-            arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            arm.setPower(0.3);
-        } else {
-            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            arm.setTargetPosition(ARM_UP);
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+//        if(gamepad2.left_bumper) {
+//            arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//            arm.setPower(0.3);
+//        } else {
+//            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            arm.setTargetPosition(ARM_UP);
+//            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        }
 
         if (gamepad2.x && !was2X) {
             if (arm.getTargetPosition() == ARM_DOWN) {
