@@ -163,7 +163,7 @@ public class MainTeleOp extends OpMode {
         // arm
         arm.setPower(0.6);
 
-//        if(gamepad2.left_bumper)  {
+//        if(gamepad2.left_bumper) {
 //            arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //            arm.setPower(0.3);
 //        } else {
