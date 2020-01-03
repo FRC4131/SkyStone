@@ -113,14 +113,14 @@ public class FoundationBlueVision extends EncoderDrive {
         servo(0);
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         startAngle = angles.firstAngle;
-        encoderDrive(0.3, 19,19,5 );
+        encoderDrive(0.3, 21,21,5 );
         arm.setPower(0.5);
 
         int counter = 0;
 
 
         while (!markVisible()) {
-            encoderSideways(0.35,7, 1);
+            encoderSideways(0.35,5, 1);
             sleep(100);
             counter += 1;
         }
@@ -140,7 +140,7 @@ public class FoundationBlueVision extends EncoderDrive {
         clamp.setPosition(1);
         sleep(1000);
 
-        encoderDrive(0.15, 10, 10, 4);
+        encoderDrive(0.15, 8, 8, 4);
         sleep(100);
 
         clamp.setPosition(0);
@@ -148,7 +148,7 @@ public class FoundationBlueVision extends EncoderDrive {
 
         arm.setTargetPosition(-100);
         encoderDrive(0.5,-4,-4,3);
-        encoderSideways(0.7,counter*-7,5);
+        encoderSideways(0.7,counter*-5,5);
         rotateToAngle(0,0.7);
         encoderSideways(0.9,-72,10); // cross line
         rotateToAngle(0, 0.7);
@@ -161,6 +161,7 @@ public class FoundationBlueVision extends EncoderDrive {
         encoderDrive(0.8,-50,-50,5); // pull foundation
         clamp.setPosition(1);
         arm.setTargetPosition(-100);
+        clamp.setPosition(0);
         servo(0); // servo up
         encoderSideways(0.8,57,5); // park
         arm.setTargetPosition(-30);

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-@Autonomous(name = "Red Block Two")
+@Autonomous(name = "Blue Block Two")
 public class SecondBlockRed extends EncoderDrive{
 
 
@@ -118,9 +118,9 @@ public class SecondBlockRed extends EncoderDrive{
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             startAngle = angles.firstAngle;
 
-//          encoderSideways(0.5, 70, 2);
+            encoderSideways(0.7, 35, 2);
 
-            encoderDrive(0.3, 19,19,5 );
+            encoderDrive(0.7, 20,20,5 );
             arm.setPower(0.5);
 
             int counter = 0;
@@ -152,22 +152,23 @@ public class SecondBlockRed extends EncoderDrive{
             sleep(1000);
 
             arm.setTargetPosition(ARM_UP);
-            encoderDrive(0.5,-8,-8,3);
+            encoderDrive(0.7,-8,-8,3);
             encoderSideways(0.7,counter*-7,5);
             rotateToAngle(0,0.7);
-            encoderDrive(0.5, 4, 4, 3);
-            encoderSideways(0.5, -46, 6);
-            sleep(1000);
+            encoderDrive(0.7, 4, 4, 3);
+            encoderSideways(0.7, -80, 6);
+            sleep(100);
             arm.setTargetPosition(ARM_DOWN);
-            sleep(1000);
+            sleep(1500);
             clamp.setPosition(OPEN);
             sleep(1000);
-            clamp.setPosition(CLOSE);
             arm.setTargetPosition(ARM_UP);
-            sleep(2000);
-            encoderSideways(0.5, 10, 5);
+            clamp.setPosition(CLOSE);
+            sleep(1000);
+            encoderSideways(0.7, 27, 5);
+//          encoderSideways(0.5, 12, 5);
+            rotateToAngle(0,0.7);
 
-            encoderSideways(0.5, 12, 5);
 
 //          encoderSideways(0.5, 20, 69);
         }

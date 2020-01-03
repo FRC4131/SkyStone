@@ -108,14 +108,14 @@ public class FoundationRedVision extends EncoderDrive {
         servo(0);
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         startAngle = angles.firstAngle;
-
         encoderDrive(0.3, 19,19,5 );
         arm.setPower(0.5);
 
         int counter = 0;
 
+
         while (!markVisible()) {
-            encoderSideways(0.35,-7, 1);
+            encoderSideways(0.35,7, 1);
             sleep(100);
             counter += 1;
         }
@@ -124,10 +124,11 @@ public class FoundationRedVision extends EncoderDrive {
 
         while (Math.abs(target - markPos()) > 5) {
             double power = (target - markPos()) * 0.003;
-            leftFront.setPower(power);
-            rightFront.setPower(-power);
-            leftBack.setPower(-power);
-            rightBack.setPower(power);
+
+            leftFront.setPower(-power);
+            rightFront.setPower(power);
+            leftBack.setPower(power);
+            rightBack.setPower(-power);
         }
 
         arm.setTargetPosition(-2575);
@@ -152,12 +153,11 @@ public class FoundationRedVision extends EncoderDrive {
         touchSensor(0.3);
         servo(1); //servo down
         arm.setTargetPosition(-2575);
-        encoderDrive(0.8,-50,-50,5); // pull foundation
+        encoderDrive(0.8,50,50,5); // pull foundation
         clamp.setPosition(1);
         arm.setTargetPosition(-100);
         servo(0); // servo up
-        clamp.setPosition(0);
-        encoderSideways(0.8,-57,5); // park
+        encoderSideways(0.8,57,5); // park
         arm.setTargetPosition(-30);
     }
 

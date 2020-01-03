@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-@Autonomous(name = "Blue Block Two")
+@Autonomous(name = "Red Block Two")
 public class SecondBlockBlue extends EncoderDrive{
 
         private DcMotor arm = null;
@@ -27,7 +27,7 @@ public class SecondBlockBlue extends EncoderDrive{
         private static final int OPEN = 1;
         private static final int CLOSE = 0;
 
-        private static final int ARM_UP = -100;
+        private static final int ARM_UP = -90;
         private static final int ARM_DOWN = -2600;
 
 
@@ -116,10 +116,10 @@ public class SecondBlockBlue extends EncoderDrive{
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             startAngle = angles.firstAngle;
 
-//          encoderSideways(0.5, 70, 2);
-
-            encoderDrive(0.3, 19,19,5 );
+            encoderSideways(0.5, -40, 2);
+            encoderDrive(0.5, 16,16,5 );
             arm.setPower(0.5);
+
 
             int counter = 0;
 
@@ -133,10 +133,10 @@ public class SecondBlockBlue extends EncoderDrive{
 
             while (Math.abs(target - markPos()) > 5) {
                 double power = (target - markPos()) * 0.003;
-                leftFront.setPower(power);
-                rightFront.setPower(-power);
-                leftBack.setPower(-power);
-                rightBack.setPower(power);
+                leftFront.setPower(-power);
+                rightFront.setPower(power);
+                leftBack.setPower(power);
+                rightBack.setPower(-power);
             }
 
             arm.setTargetPosition(ARM_DOWN);
@@ -144,7 +144,7 @@ public class SecondBlockBlue extends EncoderDrive{
             sleep(1000);
 
             encoderDrive(0.15, 10, 10, 4);
-            sleep(100);
+            sleep(1000);
 
             clamp.setPosition(CLOSE);
             sleep(1000);
@@ -154,18 +154,16 @@ public class SecondBlockBlue extends EncoderDrive{
             encoderSideways(0.7,counter*7,5);
             rotateToAngle(0,0.7);
             encoderDrive(0.7, 4, 4, 3);
-            encoderSideways(0.7, 46, 6);
-            sleep(1000);
-            arm.setTargetPosition(ARM_DOWN);
-            sleep(1000);
+            encoderSideways(0.7, 80, 6);
+            sleep(100);
             clamp.setPosition(OPEN);
             sleep(1000);
-            clamp.setPosition(CLOSE);
             arm.setTargetPosition(ARM_UP);
-            sleep(2000);
-            encoderSideways(0.5, -10, 5);
-
-            encoderSideways(0.5, -12, 5);
+            clamp.setPosition(CLOSE);
+            sleep(1000);
+            encoderSideways(0.7, -27, 5);
+            //encoderSideways(0.5, 12, 5);
+            rotateToAngle(0,0.7);
 
 //          encoderSideways(0.5, 20, 69);
         }
